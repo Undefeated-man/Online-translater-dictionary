@@ -30,15 +30,16 @@ def net_check():
         return False
 
 # google translate
-def google_trans(content):
+def google_trans(content, l_to=ini["to"]):
     """
         Func:
             Using google translate to translate the content.
         Args:
             content: the content you wanna translate -- it can be a string, and it can also be a list.
+            l_to: the language you wanna translate to(default to be zh-CH)
     """
     trans = Translator(service_urls=["translate.google.cn"])
-    result = trans.translate(content, ini["to"])
+    result = trans.translate(content, l_to)
     print("\n")
     print(" google translate ".center(40, "*"))
     print("\n\t", proc_str(result.text), "\n\n")
@@ -162,18 +163,72 @@ def get_input(title):
     return content
 
 def super_set(content):
+    """
+        Func:
+            to set something by using commands.
+    """
     command = {
         "dic off": 0,
-        "dic on": 1
+        "dic on": 1,
     }
     
     # We type "##" to enter the command mode
     if "## " in content:
         content = content.replace("## ", "")
-        code = command[content]
-        mode = code
+        mode = command.get(content, 1)
         
         return mode
+    
+    return 1
+
+def isChinese(strs, type=0):
+    """
+        Func:
+            to check if there's chinese in the content。
+
+        Args:
+            type: default to be 0, means it returns True only if all the content is Chinese
+                  when type=1, it returns True if there's at least one chinese letter in it
+    """
+    chinese = []
+    for _char in strs:
+        if not '\u4e00' <= _char <= '\u9fa5':
+            chinese.append(False)
+        else:
+            chinese.append(True)
+    if type == 0:
+        if not False in chinese:
+            return True
+        else:
+            return False
+    else:
+        if True in chinese:
+            return True
+        else:
+            return False
+
+def show_Cam_result(mode):
+    print(mode)
+    if mode == 1:
+        cam_result = cam_dic(content)
+        for i in cam_result.keys():
+            for j in cam_result[i].keys():
+                print("\nPosition: ", j)
+                print("\nChinese: ")
+                for k in cam_result[i][j]["zh"]:
+                    print("\t", k)
+                
+                print("\nEnglish: ")
+                for k in cam_result[i][j]["en"]:
+                    print("\t", k)
+                
+                if len(cam_result[i][j]["example"]) != 0:
+                    print("\nExample: ")
+                    for k in cam_result[i][j]["example"]:
+                        print("\t", k)
+                    print("\n\n")
+                else:
+                    print("\nDon't have an example.\n\n")
         
 #################################  test code  ########################
 
@@ -185,27 +240,11 @@ if __name__ == "__main__":
         while content != "-1":
             mode = super_set(content)
             if len(content) != 0:
-                google_trans(content)
-                if mode:
-                    cam_result = cam_dic(content)
-                    for i in cam_result.keys():
-                        for j in cam_result[i].keys():
-                            print("\nPosition: ", j)
-                            print("\nChinese: ")
-                            for k in cam_result[i][j]["zh"]:
-                                print("\t", k)
-                            
-                            print("\nEnglish: ")
-                            for k in cam_result[i][j]["en"]:
-                                print("\t", k)
-                            
-                            if len(cam_result[i][j]["example"]) != 0:
-                                print("\nExample: ")
-                                for k in cam_result[i][j]["example"]:
-                                    print("\t", k)
-                                print("\n\n")
-                            else:
-                                print("\nDon't have an example.\n\n")
+                if isChinese(content):
+                    google_trans(content, "en")
+                else:
+                    google_trans(content)
+                    show_Cam_result(mode)
             content = get_input("Type the content, please: \n\t")
     else:
         print("Please check your network connection!")
