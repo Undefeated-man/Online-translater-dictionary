@@ -120,7 +120,7 @@ def cam_dic(content):
                     result_dic[word][position]["en"].append(proc_str(j.text))
                 for e in examples:
                     result_dic[word][position]["example"].append(proc_str(e.text))
-    
+        result_dic["pos"] = [pos for pos in result_dic[word].keys()]
     return result_dic
 
 # process the string
@@ -205,18 +205,18 @@ def isChinese(strs, type=0):
             return False
 
 # google translate
-    def google_trans(content, l_to = ini["to"]):
-        """
-            Func:
-                Using google translate to translate the content.
-            Args:
-                content: the content you wanna translate -- it can be a string, and it can also be a list.
-                l_to: the language you wanna translate to(default to be zh-CH)
-        """
-        trans = Translator(service_urls=["translate.google.cn"])
-        result = trans.translate(self.content, l_to)
-        
-        return result
+def google_trans(content, l_to = ini["to"]):
+    """
+        Func:
+            Using google translate to translate the content.
+        Args:
+            content: the content you wanna translate -- it can be a string, and it can also be a list.
+            l_to: the language you wanna translate to(default to be zh-CH)
+    """
+    trans = Translator(service_urls=["translate.google.cn"])
+    result = trans.translate(self.content, l_to)
+    
+    return result
 
 class Trans_Dic():
     def __init__(self):

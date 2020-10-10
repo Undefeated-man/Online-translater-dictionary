@@ -26,19 +26,19 @@ app = Flask(__name__)
 @app.route('/home', methods=['GET', 'POST'])
 def index():
     if request.method == "GET":
-        return render_template("./index/index.html")
+        return render_template("./templates/index.html")
     else:
         content = request.form.get("search")
         google, cam_dic, content = get_search(content)
-        return render_template("./index/h.html", google=google, cam_dic=cam_dic, content=content)
+        return render_template("./templates/h.html", google=google.text, cam_dic=cam_dic, content=content, code=code)
 
 
 @app.route('/search', methods=['POST'])
 def search():
     content = request.form.get("search")
     google, cam_dic, content = get_search(content)
-    
-    return render_template("./index/h.html", google=google, cam_dic=cam_dic, content=content)
+    code = len(content)
+    return render_template("./templates/h.html", google=google.text, cam_dic=cam_dic, content=content, code=code)
 
 
 def get_search(content):
@@ -53,9 +53,9 @@ def get_search(content):
         else:
             google = td.google_trans(content)
             cam_dic = td.cam_dic(content)
-    
+
     return google, cam_dic, content
-    
+
 
 if __name__ == "__main__":
-    app.run()
+    app.run()S

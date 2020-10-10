@@ -1,0 +1,52 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>小水滴的词典</title>
+		<link href='./static/v.css' type='text/css' rel='stylesheet' />
+	</head>
+	<body>
+		<div class="page"  style="width:90%">
+			<img src='./static/drop.gif'><br /><br /><br />
+			<div id="search-box">
+				<form method="post">
+					<input type="image" src='./static/search.svg' id="search-img">
+					<input type="search" name="search" placeholder="请输入要查询的内容">
+				</form>
+			</div>
+		</div>
+		<hr /><br />
+		<div class="page"  style="width:90%">
+			{{% if code == 0 %}}
+				<h2 id="warning">Please Check your input!</h2>
+			{{% else %}}
+				<h2>Google Translate</h2><hr />
+					<div class="result"><p>{{google}}<p></div>
+				<br /><hr /><hr /><br />
+				<h2>Cambridge Dictionary</h2><hr />
+					<div class="result">
+						{% for j in cam_dic[content]["pos"] %}
+							{{ j }}<br /><br />
+							<p>中文意：</p>
+							<p>
+							{% for i in cam_dic[content][j]["zh"] %}
+								{{ i }}<br />
+							{% endfor %}
+							</p>
+							<p>英文意：</p>
+							<p>
+							{% for i in cam_dic[content][j]["en"] %}
+								{{ i }}<br />
+							{% endfor %}
+							</p>
+							<p>Example：</p>
+							<p>
+							{% for i in cam_dic[content][j]["example"] %}
+								{{ i }}<br />
+							{% endfor %}
+							<p>
+						{{% endfor %}}
+					</div>
+			{{% endif %}}
+		</div>
+	</body>
+</html>
