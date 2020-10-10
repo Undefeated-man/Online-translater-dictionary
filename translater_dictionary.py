@@ -1,4 +1,28 @@
+"""
+	###########################################################################
+	#		                                                                  #
+	#		Project: Translator & Dictionary                                  #
+	#		                                                                  #
+	#		Filename: translater_dictionary.py                                #
+	#		                                                                  #
+	#		Programmer: Vincent Holmes (Vincent_HolmesZ@outlook.com)          #
+	#		                                                                  #
+	#		Description: if you like this, feel free to click and give me a   #
+	#                      star~~                                             #
+	#		                                                                  #
+	#		Start_date: 2020-10-10                                            #
+	#		                                                                  #
+	#		Last_update: 2020-10-10                                           #
+	#		                                                                  #
+	###########################################################################
+"""
+
+
 from configparser import ConfigParser
+import logging
+import traceback
+from threading import Thread
+from time import sleep
 
 # Check the required packages
 try:
@@ -17,7 +41,7 @@ ini = dict(cfg.items("language"))
 
 ############################  params  ##########################
 
-mode = 1
+
 
 ############################  functions  ##########################
 
@@ -29,21 +53,6 @@ def net_check():
     except:
         return False
 
-# google translate
-def google_trans(content, l_to=ini["to"]):
-    """
-        Func:
-            Using google translate to translate the content.
-        Args:
-            content: the content you wanna translate -- it can be a string, and it can also be a list.
-            l_to: the language you wanna translate to(default to be zh-CH)
-    """
-    trans = Translator(service_urls=["translate.google.cn"])
-    result = trans.translate(content, l_to)
-    print("\n")
-    print(" google translate ".center(40, "*"))
-    print("\n\t", proc_str(result.text), "\n\n")
-
 # Cambridge dictionary
 def cam_dic(content):
     """
@@ -52,9 +61,6 @@ def cam_dic(content):
         Args:
             content: the word you wanna look for.
     """
-    print("\n\n")
-    print(" Cambridge Dictionary ".center(40, "*"), end="\n\n")
-    
     result_dic = {}
     
     header = {
@@ -81,17 +87,12 @@ def cam_dic(content):
     for word in word_ls:
         result_dic[word] = {}  # create a new word-space
         r_url = "https://dictionary.cambridge.org/us/dictionary/learner-english/%s"%(word)
-        # r_url = "https://dictionary.cambridge.org/us/search/direct/?datasetsearch=learner-english&q=%s"%(content)
-        # print(header["Referer"])
         
     # to get the checking result
         result = requests.get(r_url, headers=header)
         results = []
         results.append(result)
-        # print(result.url)
-        # if the word has multi-meaning
         if "1" in result.url.split("_")[-1]:
-            # print(result.url)
             try:
                 for i in [2,3]:
                     results.append(requests.get(r_url+"_%s"%(i), headers=header))
@@ -113,16 +114,12 @@ def cam_dic(content):
                 result_dic[word][position]["zh"] = []
                 result_dic[word][position]["en"] = []
                 result_dic[word][position]["example"] = []
-                # print(position)
                 for j in zh:
                     result_dic[word][position]["zh"].append(proc_str(j.text))
-                    # print(proc_str(j.text))
                 for j in en:
                     result_dic[word][position]["en"].append(proc_str(j.text))
-                    # print(proc_str(j.text))
                 for e in examples:
                     result_dic[word][position]["example"].append(proc_str(e.text))
-                    # print(proc_str(e.text))
     
     return result_dic
 
@@ -207,46 +204,100 @@ def isChinese(strs, type=0):
         else:
             return False
 
-def show_Cam_result(mode):
-    print(mode)
-    if mode == 1:
-        cam_result = cam_dic(content)
-        for i in cam_result.keys():
-            for j in cam_result[i].keys():
-                print("\nPosition: ", j)
-                print("\nChinese: ")
-                for k in cam_result[i][j]["zh"]:
-                    print("\t", k)
-                
-                print("\nEnglish: ")
-                for k in cam_result[i][j]["en"]:
-                    print("\t", k)
-                
-                if len(cam_result[i][j]["example"]) != 0:
-                    print("\nExample: ")
-                    for k in cam_result[i][j]["example"]:
-                        print("\t", k)
-                    print("\n\n")
-                else:
-                    print("\nDon't have an example.\n\n")
+# google translate
+    def google_trans(content, l_to = ini["to"]):
+        """
+            Func:
+                Using google translate to translate the content.
+            Args:
+                content: the content you wanna translate -- it can be a string, and it can also be a list.
+                l_to: the language you wanna translate to(default to be zh-CH)
+        """
+        trans = Translator(service_urls=["translate.google.cn"])
+        result = trans.translate(self.content, l_to)
         
+        return result
+
+class Trans_Dic():
+    def __init__(self):
+        self.finished = [1,1]
+        self.mode = 1
+        self.content = ""
+        
+    def show_Cam_result(self):
+        if self.mode == 1:
+            cam_result = cam_dic(self.content)
+            print("\n\n")
+            print(" Cambridge Dictionary ".center(40, "*"), end="\n\n")
+            for i in cam_result.keys():
+                for j in cam_result[i].keys():
+                    print("\nPosition: ", j)
+                    print("\nChinese: ")
+                    for k in cam_result[i][j]["zh"]:
+                        print("\t", k)
+                    
+                    print("\nEnglish: ")
+                    for k in cam_result[i][j]["en"]:
+                        print("\t", k)
+                    
+                    if len(cam_result[i][j]["example"]) != 0:
+                        print("\nExample: ")
+                        for k in cam_result[i][j]["example"]:
+                            print("\t", k)
+                        print("\n\n")
+                    else:
+                        print("\nDon't have an example.\n\n")
+            self.finished[1] = 1
+    
+    # google translate
+    def google_trans(self, l_to = ini["to"]):
+        """
+            Func:
+                Using google translate to translate the content.
+            Args:
+                content: the content you wanna translate -- it can be a string, and it can also be a list.
+                l_to: the language you wanna translate to(default to be zh-CH)
+        """
+        trans = Translator(service_urls=["translate.google.cn"])
+        result = trans.translate(self.content, l_to)
+        print("\n")
+        print(" google translate ".center(40, "*"))
+        print("\n\t", proc_str(result.text), "\n\n")
+        self.finished[0] = 1
+    
+    def main(self):
+        print("Checking the Internet Connection. Wait a minute please!\n")
+        try:
+            if net_check():
+                self.content = get_input("Type the content, please: \n\t")
+                self.mode = super_set(self.content)
+                
+                while self.content != "-1":
+                    t = []  # threading pool
+                    self.mode = super_set(self.content)
+                    if len(self.content) != 0:
+                        if isChinese(self.content):
+                            t.append(Thread(target = self.google_trans, args = ("en",)))
+                            self.finished[0] = 0
+                        else:
+                            t.append(Thread(target = self.google_trans))
+                            t.append(Thread(target = self.show_Cam_result))
+                            self.finished[0] = 0
+                            self.finished[1] = 0
+                    for i in t:
+                        i.start()
+                    while 0 in self.finished:
+                        sleep(1)
+                    self.content = get_input("Type the content, please: \n\t")
+            else:
+                print("Please check your network connection!")
+        except Exception as e:
+            logging.error(traceback.format_exc(3))
+   
 #################################  test code  ########################
 
 if __name__ == "__main__":
-    print("Checking the Internet Connection. Wait a minute please!\n")
-    if net_check():
-        content = get_input("Type the content, please: \n\t")
-        mode = super_set(content)
-        while content != "-1":
-            mode = super_set(content)
-            if len(content) != 0:
-                if isChinese(content):
-                    google_trans(content, "en")
-                else:
-                    google_trans(content)
-                    show_Cam_result(mode)
-            content = get_input("Type the content, please: \n\t")
-    else:
-        print("Please check your network connection!")
+    trans = Trans_Dic()
+    trans.main()
     
     
