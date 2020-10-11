@@ -1,15 +1,13 @@
 body {
 	font-family:Comic Sans MS;
 	font-size:100%;
-	background:url('static/bg.jpg');
+	background:url('./bg.jpg');
 	background-repeat:no-repeat;
 	background-size:cover;
 	text-align:center;
-	
 }
 
-input{
-	text-decoration:none;
+#search-img{
 	width:4%;
 	height:4%;
 	float:right;
@@ -22,6 +20,7 @@ input{
 	border-style:none;
 	font-family: Comic Sans MS;
 	font-size: 120%;
+	margin-bottom:-10px;
 }
 
 .page{
@@ -32,8 +31,6 @@ input{
 	margin-top:1%;
 	margin-bottom:0.5%;
 	float:left;
-	-webkit-transition: all 1.5s ease;
-			transition: all 1.5s ease;
 }
 
 #search-box{
@@ -45,7 +42,7 @@ input{
 	border-color:rgb(100,100,100);
 	padding:10px;
 	padding-top:5px;
-	padding-bottom:5px;
+	padding-bottom:0;
 	margin:10%;
 	margin-top:1%;
 	margin-bottom:1%;
@@ -77,8 +74,18 @@ h2 {
 }
 
 p{
-	text-align:center;
+	text-indent: 5%;
 	font-size:120%;
+	text-align:left;
 }
 
+p.title{
+	text-indent: 0%;
+	text-align:left;
+	font-size:200%;
+	font-weight:bold;
+}
 
+::-webkit-input-placeholder{
+	color: #bbbbbb;
+	}

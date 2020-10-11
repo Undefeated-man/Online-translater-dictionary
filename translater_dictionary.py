@@ -54,7 +54,7 @@ def net_check():
         return False
 
 # Cambridge dictionary
-def cam_dic(content):
+def cam_dic(content, mode = 1):
     """
         Func:
             catching the Cambridge Online-dictionary's result and return a "dic" Object.
@@ -82,7 +82,10 @@ def cam_dic(content):
         "q": content
     }
     
-    word_ls = isWord(content)
+    if mode == 1:
+        word_ls = isWord(content)
+    else:
+        word_ls = []
     
     for word in word_ls:
         result_dic[word] = {}  # create a new word-space
@@ -120,7 +123,7 @@ def cam_dic(content):
                     result_dic[word][position]["en"].append(proc_str(j.text))
                 for e in examples:
                     result_dic[word][position]["example"].append(proc_str(e.text))
-        result_dic["pos"] = [pos for pos in result_dic[word].keys()]
+        result_dic[word]["pos"] = [pos for pos in result_dic[word].keys()]
     return result_dic
 
 # process the string
@@ -214,7 +217,7 @@ def google_trans(content, l_to = ini["to"]):
             l_to: the language you wanna translate to(default to be zh-CH)
     """
     trans = Translator(service_urls=["translate.google.cn"])
-    result = trans.translate(self.content, l_to)
+    result = trans.translate(content, l_to)
     
     return result
 
@@ -227,10 +230,11 @@ class Trans_Dic():
     def show_Cam_result(self):
         if self.mode == 1:
             cam_result = cam_dic(self.content)
+            print(cam_result)
             print("\n\n")
             print(" Cambridge Dictionary ".center(40, "*"), end="\n\n")
             for i in cam_result.keys():
-                for j in cam_result[i].keys():
+                for j in cam_result[i]["pos"]:
                     print("\nPosition: ", j)
                     print("\nChinese: ")
                     for k in cam_result[i][j]["zh"]:
