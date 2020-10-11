@@ -31,6 +31,7 @@ input{
 	margin-top:1%;
 	margin-bottom:0.5%;
 	float:left;
+	min-height: 25%;
 }
 
 #search-box{
@@ -84,6 +85,10 @@ p.title{
 	text-align:left;
 	font-size:200%;
 	font-weight:bold;
+}
+
+#drop{
+	height:15%;
 }
 
 ::-webkit-input-placeholder{
