@@ -30,18 +30,18 @@ def index():
         return render_template("index.html")
     else:
         content = request.form.get("search")
-        google, cam_dic, content = get_search(content)
+        google, cam_dic, youdao, content = get_search(content)
         # check the content to choose the api
         code = mode_code(content, cam_dic)
-        return render_template("h.html", google=google, cam_dic=cam_dic, content=content, code=code)
+        return render_template("h.html", google=google, cam_dic=cam_dic, youdao=youdao, content=content, code=code)
 
 # the search-result-show page
 @app.route('/search', methods=['POST'])
 def search():
     content = request.form.get("search")
-    google, cam_dic, content = get_search(content)
+    google, cam_dic, youdao, content = get_search(content)
     code = mode_code(content, cam_dic)
-    return render_template("h.html", google=google, cam_dic=cam_dic, content=content, code=code)
+    return render_template("h.html", google=google, cam_dic=cam_dic, youdao=youdao, content=content, code=code)
 
 def mode_code(content, cam_dic):
     if len(content) == 0:
@@ -62,15 +62,17 @@ def get_search(content):
     if len(content) != 0:
         if td.isChinese(content) or (" " in content):
             google = td.google_trans(content, "en").text
+            youdao = td.Youdao(content).get_result()
         else:
             if " " in content:
                 mode = 0
             else:
                 mode = 1
             google = td.google_trans(content).text
+            youdao = td.Youdao(content).get_result()
             cam_dic = td.cam_dic(content, mode)
 
-    return google, cam_dic, content
+    return google, cam_dic, youdao, content
 
 
 if __name__ == "__main__":

@@ -23,6 +23,8 @@ import logging
 import traceback
 from threading import Thread
 from time import sleep
+import os
+import sys
 
 # Check the required packages
 try:
@@ -280,7 +282,7 @@ class Trans_Dic():
                     t = []  # threading pool
                     self.mode = super_set(self.content)
                     if len(self.content) != 0:
-                        if isChinese(self.content):
+                        if isChinese(self.content, 1):
                             t.append(Thread(target = self.google_trans, args = ("en",)))
                             self.finished[0] = 0
                         else:
@@ -297,11 +299,132 @@ class Trans_Dic():
                 print("Please check your network connection!")
         except Exception as e:
             logging.error(traceback.format_exc(3))
+
+class Youdao:
+    """
+        Func:
+            look up word in YouDao
+    """
+
+    params = {
+        'keyfrom': 'longcwang',
+        'key': '131895274',
+        'type': 'data',
+        'doctype': 'json',
+        'version': '1.1',
+        'q': 'query'
+    }
+    api_url = u'http://fanyi.youdao.com/openapi.do'
+    voice_url = u'http://dict.youdao.com/dictvoice?type=2&audio={word}'
+    web_url = u'http://dict.youdao.com/w/eng/{0}/#keyfrom=dict2.index'
+
+    error_code = {
+        0:  'normal',
+        20: 'your content is too long',
+        30: 'Cannot translate well',
+        40: 'Unsupported language type',
+        50: 'Invalid key',
+        60: 'dictionary doesn\'t have results'
+    }
+
+    result = {
+        "query": "",
+        "errorCode": 0,
+    }
+
+    def __init__(self, word):
+        self.word = word
+
+    def get_result(self, use_api=False):
+        """
+            Func:
+                to get the result
+            
+            Args:
+                use_api:whether using YouDao-API, or spider the web-page
+            
+            Return:
+                a dictionary include searching result
+        """
+        try:
+            if use_api:
+                self.params['q'] = self.word
+                r = requests.get(self.api_url, params=self.params)
+                r.raise_for_status()  # a 4XX client error or 5XX server error response
+                self.result = r.json()
+            else:
+                r = requests.get(self.web_url.format(self.word))
+                r.raise_for_status()
+                self.parse_html(r.text)
+        except Exception as e:
+            logging.error(traceback.format_exc(3))
+        return self.result
+
+    def parse_html(self, html):
+        """
+            Func:
+                parsing web-YouDao
+            
+            Args:
+                html: the webpage
+            
+            Return:
+                the result
+        """
+        soup = BeautifulSoup(html, "lxml")
+        root = soup.find(id='results-contents')
+
+        # query: the keyword you search
+        keyword = root.find(class_='keyword')
+        if not keyword:
+            self.result['query'] = self.word
+        else:
+            self.result['query'] = keyword.string
+
+        # the basic explains
+        basic = root.find(id='phrsListTab')
+        if basic:
+            trans = basic.find(class_='trans-container')
+            if trans:
+                self.result['basic'] = {}
+                self.result['basic']['explains'] = [tran.string for tran in trans.find_all('li')]
+                # Chinese
+                if len(self.result['basic']['explains']) == 0:
+                    exp = trans.find(class_='wordGroup').stripped_strings
+                    self.result['basic']['explains'].append(' '.join(exp))
+
+                # phonetic
+                phons = basic(class_='phonetic', limit=2)
+                if len(phons) == 2:
+                    self.result['basic']['uk-phonetic'], self.result['basic']['us-phonetic'] = \
+                        [p.string[1:-1] for p in phons]
+                elif len(phons) == 1:
+                    self.result['basic']['phonetic'] = phons[0].string[1:-1]
+        
+        #translate
+        trans = root.find(id='fanyiToggle')
+        if trans:
+            self.result["translate"] = trans.find_all("p")[1].text
+
+        # phrase
+        web = root.find(id='webPhrase')
+        if web:
+            web_result = [
+                {
+                    'key': wordgroup.find(class_='search-js').string.strip(),
+                    'value': [v.strip() for v in wordgroup.find('span').next_sibling.split(';') if not v.strip() == ""]
+                } for wordgroup in web.find_all(class_='wordGroup', limit=10)
+            ]
+            
+            self.result['webPhrase'] = [phrase for phrase in web_result if phrase["value"] != []]
    
 #################################  test code  ########################
 
 if __name__ == "__main__":
     trans = Trans_Dic()
+    test = Youdao("This").get_result()
+    print(test)
     trans.main()
+    
     
     
