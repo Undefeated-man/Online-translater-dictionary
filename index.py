@@ -59,6 +59,7 @@ def get_search(content):
     content = td.proc_str(content)
     google = ""
     cam_dic = {}
+    youdao = {}
     if len(content) != 0:
         if td.isChinese(content) or (" " in content):
             google = td.google_trans(content, "en").text

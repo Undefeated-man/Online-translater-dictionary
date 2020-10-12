@@ -334,6 +334,8 @@ class Youdao:
 
     def __init__(self, word):
         self.word = word
+        self.result = {}
+        self.result["basic"] = {}
 
     def get_result(self, use_api=False):
         """
@@ -400,6 +402,8 @@ class Youdao:
                         [p.string[1:-1] for p in phons]
                 elif len(phons) == 1:
                     self.result['basic']['phonetic'] = phons[0].string[1:-1]
+        else:
+            self.result['basic'] = {}
         
         #translate
         trans = root.find(id='fanyiToggle')
