@@ -3,23 +3,141 @@
 		<meta charset="UTF-8">
 		<title>小水滴的词典</title>
 		<link href='./static/v.css' type='text/css' rel='stylesheet' />
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+		<script src="https://cdn.jsdelivr.net/npm/axios@0.20.0/dist/axios.min.js"></script>
 	</head>
 	<body bgcolor="rgb(89,194,213)">
-		<div class="page"  style="width:90%">
-			<img src='./static/drop.gif' id="drop"><br /><br /><br />
-			<div id="search-box">
-				<form method="post">
-					<input type="image" src='./static/search.svg' id="search-img">
-					<input type="search" name="search" placeholder="自动识别中英/英英/英中翻译，支持整段英文翻译">
-				</form>
+		<!-- Vue App Div structure -->
+		<div id='app_div'>
+			<div class="page"  style="width:90%">
+				<img src='./static/drop.gif' id="drop"><br /><br /><br />
+				<div id="search-box">
+					<form>
+						<img
+							v-on:click="search_onclick"
+							type="image"
+							src='./static/search.svg'
+							id="search-img"
+						>
+						<input
+							v-model="search"
+							type="search"
+							name="search"
+							placeholder="自动识别中英/英英/英中翻译，支持整段英文翻译"
+						>
+					</form>
+				</div>
+				<span v-if="searching_show">搜索中...</span>
+			</div>
+			<hr /><br />
+			<div class="page"  style="width:90%">
+				<h2 v-if='warning_show'>Please Check your input!</h2>
+
+				<h2>Google Translate</h2><hr />
+				<div class="result">
+					<p>[[ resp['google'] ]]</p>
+				</div>
+				<br /><hr /><hr /><br />
+
+				<div v-if="resp['youdao']['translate']">
+					<h2>Youdao Translate</h2><hr />
+					<div class="result">
+						<p>[[ resp['youdao']['translate'] ]]</p>
+					</div>
+				</div>
+				<div v-else>
+					<h2>Youdao Translate</h2><hr />
+					<div class="result">
+						<div v-if="resp['youdao']['basic']">
+							<p class="title">音标：</p>
+								英式：[[ resp['youdao']['basic']['uk-phonetic'] ]]<br />
+								美式：[[ resp['youdao']['basic']['us-phonetic'] ]]<br />
+
+							<p class="title">中文意：</p>
+							<p v-for="i in resp['youdao']['basic']['explains']">** [[ i ]]</p><br />
+						</div>
+
+						<p class="title">短语：</p>
+						<p v-for="i in resp.youdao.webPhrase">
+							[[ i.key ]]: [[ i.value ]]
+						</p><br />
+					</div>
+				</div>
+
+				<br /><hr /><hr /><br />
+				<h2>Cambridge Dictionary</h2><hr />
+				<div class="result">
+					<div v-for="cam in cam_cleaned">
+						<p class="title">[[ cam['po'] ]]</p><br />
+						<p class="title">中文意：</p>
+						<div v-for="mean in cam['zh']">
+							<p>** [[ mean ]]</p><br />
+						</div>
+
+						<p class="title">英文意：</p>
+						<div v-for="mean in cam['en']">
+							<p>** [[ mean ]]</p><br />
+						</div>
+
+						<p class="title">Example：</p>
+						<div v-for="mean in cam['example']">
+							<p>** [[ mean ]]</p><br />
+						</div>
+						<hr /><br />
+					</div>
+				</div>
 			</div>
 		</div>
-		<hr /><br />
-		<div class="page"  style="width:90%">
-			<h2> ~ Result Here ~ </h2><br /><br /><hr /><br />
-			<h2>Hint</h2><br />
-			<p>后面将更新加入 <b><u>拍照翻译</u></b> 功能，并优化 <b><u>加速加载速度</u></b></p><br />
-			<p>敬请期待~</p>
-		</div>
 	</body>
+	<script>
+		var app = new Vue({
+			// use [[ ]] instead of to avoid confilt with flask templates
+			delimiters: ['[[', ']]'],
+			el: '#app_div',
+			data: {
+				'warning_show': false,
+				'search': '',
+				'searching_show': false,
+				'resp': {
+					'google': "",
+					'youdao': {
+						'translate': '',
+						'basic': {
+							'uk-phonetic': '',
+							'us-phonetic': '',
+							'explains': [],
+						},
+						'webPharse': [],
+					},
+				},
+				'cam_cleaned': [],
+			},
+			methods: {
+				search_onclick: function() {
+					app.searching_show = true
+					axios.post("/search", {
+						'search': app.search,
+					})
+					.then(function(response) {
+						console.log(response)
+						app.resp = response.data
+						app.cam_func()
+					})
+					.finally(function() {
+						app.searching_show = false
+					})
+				},
+				cam_func: function() {
+					var content = app.resp.content
+					var cam_info = app.resp.cam_dic[content]
+					for (var i=0; i<cam_info.pos.length; i++) {
+						var pos = cam_info.pos[i]
+						var cam_pic = cam_info[pos]
+						cam_pic['po'] = pos
+						app.cam_cleaned.push(cam_pic)
+					}
+				},
+			},
+		})
+	</script>
 </html>
