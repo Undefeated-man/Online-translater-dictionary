@@ -1,0 +1,6 @@
+# this document used to check if your required packages are installed
+
+googletrans==3.0.0
+flask==1.1.2
+requests==2.24.0
+beautifulsoup4==4.9.1

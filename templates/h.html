@@ -18,77 +18,93 @@
 		<div class="page"  style="width:90%">
 			{% if code == 0 %}
 				<h2 id="warning">Please Check your input!</h2>
-			{% elif code == 1 %}
-				<h2>Google Translate</h2><hr />
-					<div class="result"><p>{{google}}</p></div>
-				<br /><hr /><hr /><br />
-				{% if youdao["translate"] %}
-					<h2>Youdao Translate</h2><hr />
-						<div class="result"><p>{{youdao["translate"]}}</p></div>
-				{% else %}
-					<h2>Youdao Translate</h2><hr />
-					<div class="result">
-						<p class="title">音标：</p>
-							英式：{{youdao["basic"]["uk-phonetic"]}}<br />
-							美式：{{youdao["basic"]["us-phonetic"]}}<br />
-						
-						<p class="title">中文意：</p>
-							{% for i in youdao["basic"]["explains"] %}
-								<p>** {{ i }}</p><br />
-							{% endfor %}
-						
-						<p class="title">短语：</p>
-							{% for i in youdao["webPhrase"] %}
-								<p>** {{ i["key"] }}: {{ i["value"] }}</p><br />
-							{% endfor %}
-					</div>
-				{% endif %}
-				<br /><hr /><hr /><br />
-			{% elif code == 2 %}
-				<h2>Google Translate</h2><hr />
-					<div class="result"><p>{{google}}</p></div>
-				<br /><hr /><hr /><br />
-				
-				<h2>Youdao Translate</h2><hr />
-					<div class="result">
-						<p class="title">音标：</p>
-							英式：{{youdao["basic"]["uk-phonetic"]}}<br />
-							美式：{{youdao["basic"]["us-phonetic"]}}<br />
-						
-						<p class="title">中文意：</p>
-							{% for i in youdao["basic"]["explains"] %}
-								<p>** {{ i }}</p><br />
-							{% endfor %}
-						
-						<p class="title">短语：</p>
-							{% for i in youdao["webPhrase"] %}
-								<p>** {{ i["key"] }}: {{ i["value"] }}</p><br />
-							{% endfor %}
+			{% else %}
+				<h2>Search History</h2><hr />
+				<div class="result"><p>{{content}}</p></div>
+				{% if code == 1 %}
+					<div class="page"  style="width:90%">
+						<h2>Google Translate</h2><hr />
+							<div class="result"><p>{{google}}</p></div>
+						<br /><hr /><hr /><br />
 					</div>
 					
-				<br /><hr /><hr /><br />
-				<h2>Cambridge Dictionary</h2><hr />
-					<div class="result">
-						{% for j in cam_dic[content]["pos"] %}
-							<p class="title">{{ j }}</p><br />
+					<div class="page"  style="width:90%">
+					<h2>Youdao Translate</h2><hr />
+					{% if youdao["translate"] %}
+							<div class="result"><p>{{youdao["translate"]}}</p></div>
+					{% elif youdao["basic"] %}
+						<div class="result">
+							<p class="title">音标：</p>
+								<p>英式：{{youdao["basic"]["uk-phonetic"]}}</p><br />
+								<p>美式：{{youdao["basic"]["us-phonetic"]}}</p><br />
+							
 							<p class="title">中文意：</p>
-								{% for i in cam_dic[content][j]["zh"] %}
-									<p>** {{ i }}</p><br />
-								{% endfor %}
-								
-							<p class="title">英文意：</p>
-								{% for i in cam_dic[content][j]["en"] %}
+								{% for i in youdao["basic"]["explains"] %}
 									<p>** {{ i }}</p><br />
 								{% endfor %}
 							
-							<p class="title">Example：</p>
-								{% for i in cam_dic[content][j]["example"] %}
+							<p class="title">短语：</p>
+								{% for i in youdao["webPhrase"] %}
+									<p>** {{ i["key"] }}: {{ i["value"] }}</p><br />
+								{% endfor %}
+						</div>
+					{% endif %}
+					</div>
+				<br /><hr /><hr /><br />
+		</div>
+				
+				{% elif code == 2 %}
+				<div class="page"  style="width:90%">
+					<h2>Google Translate</h2><hr />
+						<div class="result"><p>{{google}}</p></div>
+					<br /><hr /><hr /><br />
+				</div>
+				
+				<div class="page"  style="width:90%">
+					<h2>Youdao Translate</h2><hr />
+						<div class="result">
+							<p class="title">音标：</p>
+								<p>英式：{{youdao["basic"]["uk-phonetic"]}}</p><br />
+								<p>美式：{{youdao["basic"]["us-phonetic"]}}</p><br />
+							
+							<p class="title">中文意：</p>
+								{% for i in youdao["basic"]["explains"] %}
 									<p>** {{ i }}</p><br />
 								{% endfor %}
-							<hr /><br />
-						{% endfor %}
-					</div>
+							
+							<p class="title">短语：</p>
+								{% for i in youdao["webPhrase"] %}
+									<p>** {{ i["key"] }}: {{ i["value"] }}</p><br />
+								{% endfor %}
+						</div>
+				</div>
+					
+					<br /><hr /><hr /><br />
+					
+				<div class="page"  style="width:90%">
+					<h2>Cambridge Dictionary</h2><hr />
+						<div class="result">
+							{% for j in cam_dic[content]["pos"] %}
+								<p class="title">{{ j }}</p><br />
+								<p class="title">中文意：</p>
+									{% for i in cam_dic[content][j]["zh"] %}
+										<p>** {{ i }}</p><br />
+									{% endfor %}
+									
+								<p class="title">英文意：</p>
+									{% for i in cam_dic[content][j]["en"] %}
+										<p>** {{ i }}</p><br />
+									{% endfor %}
+								
+								<p class="title">Example：</p>
+									{% for i in cam_dic[content][j]["example"] %}
+										<p>** {{ i }}</p><br />
+									{% endfor %}
+								<hr /><br />
+							{% endfor %}
+						</div>
+				</div>
+				{% endif %}
 			{% endif %}
-		</div>
 	</body>
 </html>
