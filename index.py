@@ -61,15 +61,21 @@ def get_search(content):
     cam_dic = {}
     youdao = {}
     if len(content) != 0:
-        if td.isChinese(content) or (" " in content):
-            google = td.google_trans(content, "en").text
+        if td.isChinese(content, 1) or (" " in content):
+            try:
+                google = td.google_trans(content, "en").text
+            except:
+                google = "Google service crashed!"
             youdao = td.Youdao(content).get_result()
         else:
             if " " in content:
                 mode = 0
             else:
                 mode = 1
-            google = td.google_trans(content).text
+            try:
+                google = td.google_trans(content).text
+            except:
+                google = "Google service crashed!"
             youdao = td.Youdao(content).get_result()
             cam_dic = td.cam_dic(content, mode)
 

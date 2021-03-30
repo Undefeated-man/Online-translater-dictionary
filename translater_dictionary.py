@@ -30,7 +30,8 @@ import sys
 try:
     import requests
     from bs4 import BeautifulSoup
-    from googletrans import Translator
+    # from googletrans import Translator
+    from google_trans_new import google_translator  
 except Exception as e:
     print(e)
 
@@ -218,7 +219,8 @@ def google_trans(content, l_to = ini["to"]):
             content: the content you wanna translate -- it can be a string, and it can also be a list.
             l_to: the language you wanna translate to(default to be zh-CH)
     """
-    trans = Translator(service_urls=["translate.google.cn"])
+    #trans = Translator(service_urls=["translate.google.cn"])
+    trans = google_translator()
     result = trans.translate(content, l_to)
     
     return result
@@ -264,11 +266,12 @@ class Trans_Dic():
                 content: the content you wanna translate -- it can be a string, and it can also be a list.
                 l_to: the language you wanna translate to(default to be zh-CH)
         """
-        trans = Translator(service_urls=["translate.google.cn"])
+        # trans = Translator(service_urls=["translate.google.cn"])
+        trans = google_translator()
         result = trans.translate(self.content, l_to)
         print("\n")
         print(" google translate ".center(40, "*"))
-        print("\n\t", proc_str(result.text), "\n\n")
+        print("\n\t", proc_str(result), "\n\n")
         self.finished[0] = 1
     
     def main(self):
