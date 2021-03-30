@@ -18,30 +18,34 @@
 """
 
 
-from flask import Flask, render_template, request
+from flask import (
+    Flask,
+    render_template,
+    request,
+    jsonify,
+)
 import translater_dictionary as td
 
 app = Flask(__name__)
 
 # the home page
-@app.route('/home', methods=['GET', 'POST'])
+@app.route('/home', methods=['GET'])
 def index():
-    if request.method == "GET":
-        return render_template("index.html")
-    else:
-        content = request.form.get("search")
-        google, cam_dic, youdao, content = get_search(content)
-        # check the content to choose the api
-        code = mode_code(content, cam_dic)
-        return render_template("h.html", google=google, cam_dic=cam_dic, youdao=youdao, content=content, code=code)
+    return render_template("index.html")
 
-# the search-result-show page
+# the search-api
 @app.route('/search', methods=['POST'])
 def search():
-    content = request.form.get("search")
+    content = request.json.get("search")
     google, cam_dic, youdao, content = get_search(content)
     code = mode_code(content, cam_dic)
-    return render_template("h.html", google=google, cam_dic=cam_dic, youdao=youdao, content=content, code=code)
+    return jsonify({
+        'google': google,
+        'cam_dic': cam_dic,
+        'youdao': youdao,
+        'content': content,
+        'code': code,
+        })
 
 def mode_code(content, cam_dic):
     if len(content) == 0:
