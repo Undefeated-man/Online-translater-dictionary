@@ -67,7 +67,7 @@ def get_search(content):
     if len(content) != 0:
         if td.isChinese(content, 1) or (" " in content):
             try:
-                google = td.google_trans(content, "en").text
+                google = td.google_trans(content, "en")
             except:
                 google = "Google service crashed!"
             youdao = td.Youdao(content).get_result()
@@ -77,7 +77,7 @@ def get_search(content):
             else:
                 mode = 1
             try:
-                google = td.google_trans(content).text
+                google = td.google_trans(content)
             except:
                 google = "Google service crashed!"
             youdao = td.Youdao(content).get_result()
